@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-export default function BillingSuccessPage() {
+function BillingSuccessContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -16,8 +16,7 @@ export default function BillingSuccessPage() {
   }, []);
 
   async function verifyPayment() {
-    const reference =
-      searchParams.get("reference");
+    const reference = searchParams.get("reference");
 
     if (!reference) {
       setStatus("Payment reference not found.");
@@ -30,8 +29,7 @@ export default function BillingSuccessPage() {
         {
           method: "POST",
           headers: {
-            "Content-Type":
-              "application/json",
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
             reference,
@@ -56,9 +54,9 @@ export default function BillingSuccessPage() {
       setTimeout(() => {
         router.push("/profile");
       }, 2000);
-
     } catch (error) {
       console.error(error);
+
       setStatus(
         "Something went wrong while verifying payment."
       );
@@ -67,9 +65,7 @@ export default function BillingSuccessPage() {
 
   return (
     <main className="min-h-screen bg-slate-100 flex items-center justify-center p-6">
-
       <div className="bg-white rounded-3xl shadow-xl p-10 max-w-md w-full text-center">
-
         <div className="text-5xl mb-5">
           💳
         </div>
@@ -81,9 +77,35 @@ export default function BillingSuccessPage() {
         <p className="text-gray-500 mt-4">
           {status}
         </p>
-
       </div>
-
     </main>
+  );
+}
+
+function LoadingPaymentPage() {
+  return (
+    <main className="min-h-screen bg-slate-100 flex items-center justify-center p-6">
+      <div className="bg-white rounded-3xl shadow-xl p-10 max-w-md w-full text-center">
+        <div className="text-5xl mb-5">
+          💳
+        </div>
+
+        <h1 className="text-2xl font-bold">
+          Premium Subscription
+        </h1>
+
+        <p className="text-gray-500 mt-4">
+          Loading payment information...
+        </p>
+      </div>
+    </main>
+  );
+}
+
+export default function BillingSuccessPage() {
+  return (
+    <Suspense fallback={<LoadingPaymentPage />}>
+      <BillingSuccessContent />
+    </Suspense>
   );
 }
